@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-
+import heroVideo from "../assets/vedios/hero.mp4";
 const NAV_LINKS = ["Studio", "Portfolio", "Services", "Process", "Journal", "Contact"];
 
 const STATS = [
@@ -259,7 +259,7 @@ export default function HomePage() {
           }}
         >
           <source
-            src="./src/assets/vedios/hero.mp4"
+            src={heroVideo}
             type="video/mp4"
           />
         </video>
