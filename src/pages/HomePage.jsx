@@ -1,6 +1,17 @@
 import { useState, useEffect, useRef } from "react";
 import heroVideo from "../assets/vedios/hero.mp4";
-const NAV_LINKS = ["Studio", "Portfolio", "Services", "Process", "Journal", "Contact"];
+import image1 from "../assets/images/image1.png";
+import image2 from "../assets/images/image2.png";
+import image3 from "../assets/images/image3.png";
+import image4 from "../assets/images/image4.png";
+const NAV_LINKS = [
+  "Studio",
+  "Portfolio",
+  "Services",
+  "Process",
+  "Journal",
+  "Contact",
+];
 
 const STATS = [
   { value: "340+", label: "Projects Completed" },
@@ -37,23 +48,75 @@ const SERVICES = [
 ];
 
 const PORTFOLIO = [
-  { title: "The Obsidian Suite", city: "Dubai", year: "2024", size: "large" },
-  { title: "Maison Céleste", city: "Paris", year: "2024", size: "small" },
-  { title: "Casa Aurea", city: "Milan", year: "2023", size: "small" },
-  { title: "The Glass Pavilion", city: "Tokyo", year: "2023", size: "large" },
+  {
+    title: "The Obsidian Suite",
+    city: "Dubai",
+    year: "2024",
+    size: "large",
+    image: image1,
+  },
+  {
+    title: "Maison Céleste",
+    city: "Paris",
+    year: "2024",
+    size: "small",
+    image: image2,
+  },
+  {
+    title: "Casa Aurea",
+    city: "Milan",
+    year: "2023",
+    size: "small",
+    image: image3,
+  },
+  {
+    title: "The Glass Pavilion",
+    city: "Tokyo",
+    year: "2023",
+    size: "large",
+    image: image4,
+  },
 ];
 
 const PROCESS = [
-  { step: "I", title: "Discovery", text: "A deep immersion into your world — your rituals, aspirations, and the feeling you want to inhabit." },
-  { step: "II", title: "Concept", text: "A singular creative direction emerges. Mood, palette, materiality, and spatial narrative are defined." },
-  { step: "III", title: "Design", text: "Every millimetre is resolved. Technical drawings, custom furniture design, and material specification." },
-  { step: "IV", title: "Realisation", text: "We orchestrate artisans, contractors, and suppliers — managing every detail through to the final reveal." },
+  {
+    step: "I",
+    title: "Discovery",
+    text: "A deep immersion into your world — your rituals, aspirations, and the feeling you want to inhabit.",
+  },
+  {
+    step: "II",
+    title: "Concept",
+    text: "A singular creative direction emerges. Mood, palette, materiality, and spatial narrative are defined.",
+  },
+  {
+    step: "III",
+    title: "Design",
+    text: "Every millimetre is resolved. Technical drawings, custom furniture design, and material specification.",
+  },
+  {
+    step: "IV",
+    title: "Realisation",
+    text: "We orchestrate artisans, contractors, and suppliers — managing every detail through to the final reveal.",
+  },
 ];
 
 const JOURNAL = [
-  { cat: "Material Study", title: "The Quiet Power of Raw Travertine", date: "May 2025" },
-  { cat: "Essay", title: "Why Silence Is the Ultimate Luxury", date: "April 2025" },
-  { cat: "Project", title: "Inside the Obsidian Suite, Dubai", date: "March 2025" },
+  {
+    cat: "Material Study",
+    title: "The Quiet Power of Raw Travertine",
+    date: "May 2025",
+  },
+  {
+    cat: "Essay",
+    title: "Why Silence Is the Ultimate Luxury",
+    date: "April 2025",
+  },
+  {
+    cat: "Project",
+    title: "Inside the Obsidian Suite, Dubai",
+    date: "March 2025",
+  },
 ];
 
 export default function HomePage() {
@@ -90,13 +153,18 @@ export default function HomePage() {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            setVisibleSections((prev) => ({ ...prev, [entry.target.id]: true }));
+            setVisibleSections((prev) => ({
+              ...prev,
+              [entry.target.id]: true,
+            }));
           }
         });
       },
-      { threshold: 0.15 }
+      { threshold: 0.15 },
     );
-    document.querySelectorAll("[data-animate]").forEach((el) => observer.observe(el));
+    document
+      .querySelectorAll("[data-animate]")
+      .forEach((el) => observer.observe(el));
     return () => observer.disconnect();
   }, []);
 
@@ -165,7 +233,8 @@ export default function HomePage() {
           background: navBg,
           backdropFilter: navBlur,
           WebkitBackdropFilter: navBlur,
-          borderBottom: scrollY > 60 ? "1px solid rgba(200,169,110,0.12)" : "none",
+          borderBottom:
+            scrollY > 60 ? "1px solid rgba(200,169,110,0.12)" : "none",
           transition: "background 0.5s ease, border 0.5s ease",
           padding: "0 3rem",
           height: "80px",
@@ -258,10 +327,7 @@ export default function HomePage() {
             transition: "transform 0.1s linear",
           }}
         >
-          <source
-            src={heroVideo}
-            type="video/mp4"
-          />
+          <source src={heroVideo} type="video/mp4" />
         </video>
 
         {/* Gradient overlays */}
@@ -306,7 +372,8 @@ export default function HomePage() {
             transform: "translateY(-50%)",
             width: "1px",
             height: "120px",
-            background: "linear-gradient(to bottom, transparent, #c8a96e, transparent)",
+            background:
+              "linear-gradient(to bottom, transparent, #c8a96e, transparent)",
             animation: "lineGrow 2s ease forwards",
           }}
         />
@@ -345,11 +412,19 @@ export default function HomePage() {
               animation: "fadeUp 1.2s ease 0.5s both",
             }}
           >
-            <span style={{ display: "block", fontStyle: "italic", color: "#c8a96e" }}>
+            <span
+              style={{
+                display: "block",
+                fontStyle: "italic",
+                color: "#c8a96e",
+              }}
+            >
               Where
             </span>
             <span style={{ display: "block" }}>Space Becomes</span>
-            <span style={{ display: "block", fontStyle: "italic" }}>Sensation</span>
+            <span style={{ display: "block", fontStyle: "italic" }}>
+              Sensation
+            </span>
           </h1>
 
           <p
@@ -461,7 +536,9 @@ export default function HomePage() {
           padding: "100px 8%",
           borderBottom: "1px solid rgba(200,169,110,0.1)",
           opacity: visibleSections["stats"] ? 1 : 0,
-          transform: visibleSections["stats"] ? "translateY(0)" : "translateY(40px)",
+          transform: visibleSections["stats"]
+            ? "translateY(0)"
+            : "translateY(40px)",
           transition: "opacity 1s ease, transform 1s ease",
         }}
       >
@@ -481,7 +558,9 @@ export default function HomePage() {
                 textAlign: "center",
                 transition: `opacity 0.8s ease ${i * 0.15}s, transform 0.8s ease ${i * 0.15}s`,
                 opacity: visibleSections["stats"] ? 1 : 0,
-                transform: visibleSections["stats"] ? "translateY(0)" : "translateY(30px)",
+                transform: visibleSections["stats"]
+                  ? "translateY(0)"
+                  : "translateY(30px)",
               }}
             >
               <div
@@ -521,7 +600,9 @@ export default function HomePage() {
         style={{
           padding: "120px 8%",
           opacity: visibleSections["services"] ? 1 : 0,
-          transform: visibleSections["services"] ? "translateY(0)" : "translateY(40px)",
+          transform: visibleSections["services"]
+            ? "translateY(0)"
+            : "translateY(40px)",
           transition: "opacity 1s ease, transform 1s ease",
         }}
       >
@@ -704,7 +785,9 @@ export default function HomePage() {
         style={{
           padding: "120px 8%",
           opacity: visibleSections["portfolio"] ? 1 : 0,
-          transform: visibleSections["portfolio"] ? "translateY(0)" : "translateY(40px)",
+          transform: visibleSections["portfolio"]
+            ? "translateY(0)"
+            : "translateY(40px)",
           transition: "opacity 1s ease, transform 1s ease",
         }}
       >
@@ -767,7 +850,10 @@ export default function HomePage() {
                 style={{
                   gridColumn: configs[i].col,
                   gridRow: configs[i].row,
-                  background: gradients[i],
+                  backgroundImage: `url(${p.image})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  backgroundRepeat: "no-repeat",
                   position: "relative",
                   overflow: "hidden",
                   cursor: "pointer",
@@ -899,9 +985,12 @@ export default function HomePage() {
         data-animate
         style={{
           padding: "120px 8%",
-          background: "linear-gradient(180deg, #080604 0%, #0d0b07 50%, #080604 100%)",
+          background:
+            "linear-gradient(180deg, #080604 0%, #0d0b07 50%, #080604 100%)",
           opacity: visibleSections["process"] ? 1 : 0,
-          transform: visibleSections["process"] ? "translateY(0)" : "translateY(40px)",
+          transform: visibleSections["process"]
+            ? "translateY(0)"
+            : "translateY(40px)",
           transition: "opacity 1s ease, transform 1s ease",
           position: "relative",
           overflow: "hidden",
@@ -963,7 +1052,8 @@ export default function HomePage() {
             <div
               key={i}
               onMouseEnter={(e) => {
-                e.currentTarget.querySelector(".process-num").style.color = "#c8a96e";
+                e.currentTarget.querySelector(".process-num").style.color =
+                  "#c8a96e";
                 setHovering(true);
               }}
               onMouseLeave={(e) => {
@@ -1029,7 +1119,9 @@ export default function HomePage() {
         style={{
           padding: "120px 8%",
           opacity: visibleSections["journal"] ? 1 : 0,
-          transform: visibleSections["journal"] ? "translateY(0)" : "translateY(40px)",
+          transform: visibleSections["journal"]
+            ? "translateY(0)"
+            : "translateY(40px)",
           transition: "opacity 1s ease, transform 1s ease",
         }}
       >
@@ -1087,7 +1179,9 @@ export default function HomePage() {
             }}
           >
             All Articles
-            <div style={{ width: "32px", height: "1px", background: "#c8a96e" }} />
+            <div
+              style={{ width: "32px", height: "1px", background: "#c8a96e" }}
+            />
           </a>
         </div>
 
@@ -1115,7 +1209,9 @@ export default function HomePage() {
                 transition: "padding 0.4s ease",
               }}
             >
-              <div style={{ display: "flex", gap: "3rem", alignItems: "center" }}>
+              <div
+                style={{ display: "flex", gap: "3rem", alignItems: "center" }}
+              >
                 <span
                   style={{
                     fontFamily: "'Josefin Sans', sans-serif",
@@ -1140,7 +1236,9 @@ export default function HomePage() {
                   {j.title}
                 </h3>
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "2rem" }}
+              >
                 <span
                   style={{
                     fontFamily: "'Josefin Sans', sans-serif",
@@ -1152,7 +1250,9 @@ export default function HomePage() {
                 >
                   {j.date}
                 </span>
-                <span style={{ color: "rgba(200,169,110,0.6)", fontSize: "20px" }}>
+                <span
+                  style={{ color: "rgba(200,169,110,0.6)", fontSize: "20px" }}
+                >
                   →
                 </span>
               </div>
@@ -1168,7 +1268,8 @@ export default function HomePage() {
         data-animate
         style={{
           margin: "0 8% 120px",
-          background: "linear-gradient(135deg, #1a130a 0%, #0d0b07 50%, #0a0f16 100%)",
+          background:
+            "linear-gradient(135deg, #1a130a 0%, #0d0b07 50%, #0a0f16 100%)",
           border: "1px solid rgba(200,169,110,0.15)",
           padding: "80px",
           display: "flex",
@@ -1177,7 +1278,9 @@ export default function HomePage() {
           position: "relative",
           overflow: "hidden",
           opacity: visibleSections["cta"] ? 1 : 0,
-          transform: visibleSections["cta"] ? "translateY(0)" : "translateY(40px)",
+          transform: visibleSections["cta"]
+            ? "translateY(0)"
+            : "translateY(40px)",
           transition: "opacity 1s ease, transform 1s ease",
         }}
       >
@@ -1189,7 +1292,8 @@ export default function HomePage() {
             width: "500px",
             height: "500px",
             borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(200,169,110,0.05) 0%, transparent 70%)",
+            background:
+              "radial-gradient(circle, rgba(200,169,110,0.05) 0%, transparent 70%)",
             pointerEvents: "none",
           }}
         />
@@ -1243,7 +1347,14 @@ export default function HomePage() {
             </span>
           </h2>
         </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: "1rem", flexShrink: 0 }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "1rem",
+            flexShrink: 0,
+          }}
+        >
           <button
             onMouseEnter={() => setHovering(true)}
             onMouseLeave={() => setHovering(false)}
@@ -1383,11 +1494,23 @@ export default function HomePage() {
               },
               {
                 heading: "Services",
-                links: ["Residential", "Commercial", "Concept", "Furniture", "Consulting"],
+                links: [
+                  "Residential",
+                  "Commercial",
+                  "Concept",
+                  "Furniture",
+                  "Consulting",
+                ],
               },
               {
                 heading: "Contact",
-                links: ["London", "Dubai", "New York", "hello@aurum.studio", "+44 20 7946 0958"],
+                links: [
+                  "London",
+                  "Dubai",
+                  "New York",
+                  "hello@aurum.studio",
+                  "+44 20 7946 0958",
+                ],
               },
             ].map((col) => (
               <div key={col.heading}>
@@ -1456,25 +1579,27 @@ export default function HomePage() {
               © 2025 Aurum Studio. All Rights Reserved.
             </p>
             <div style={{ display: "flex", gap: "2.5rem" }}>
-              {["Privacy Policy", "Terms of Use", "Cookie Settings"].map((t) => (
-                <a
-                  key={t}
-                  href="#"
-                  onMouseEnter={() => setHovering(true)}
-                  onMouseLeave={() => setHovering(false)}
-                  style={{
-                    fontFamily: "'Josefin Sans', sans-serif",
-                    fontWeight: 100,
-                    fontSize: "10px",
-                    letterSpacing: "0.15em",
-                    color: "rgba(240,235,228,0.25)",
-                    textDecoration: "none",
-                    transition: "color 0.3s",
-                  }}
-                >
-                  {t}
-                </a>
-              ))}
+              {["Privacy Policy", "Terms of Use", "Cookie Settings"].map(
+                (t) => (
+                  <a
+                    key={t}
+                    href="#"
+                    onMouseEnter={() => setHovering(true)}
+                    onMouseLeave={() => setHovering(false)}
+                    style={{
+                      fontFamily: "'Josefin Sans', sans-serif",
+                      fontWeight: 100,
+                      fontSize: "10px",
+                      letterSpacing: "0.15em",
+                      color: "rgba(240,235,228,0.25)",
+                      textDecoration: "none",
+                      transition: "color 0.3s",
+                    }}
+                  >
+                    {t}
+                  </a>
+                ),
+              )}
             </div>
             <div
               style={{
