@@ -259,7 +259,7 @@ export default function HomePage() {
           }}
         >
           <source
-            src="src/assets/vedios/hero.mp4"
+            src="./src/assets/vedios/hero.mp4"
             type="video/mp4"
           />
         </video>
