@@ -4,6 +4,7 @@ import image1 from "../assets/images/image1.png";
 import image2 from "../assets/images/image2.png";
 import image3 from "../assets/images/image3.png";
 import image4 from "../assets/images/image4.png";
+
 const NAV_LINKS = [
   "Studio",
   "Portfolio",
@@ -125,8 +126,16 @@ export default function HomePage() {
   const [cursor, setCursor] = useState({ x: 0, y: 0 });
   const [cursorVisible, setCursorVisible] = useState(false);
   const [hovering, setHovering] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const heroRef = useRef(null);
   const [visibleSections, setVisibleSections] = useState({});
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   useEffect(() => {
     const onScroll = () => setScrollY(window.scrollY);
@@ -160,7 +169,7 @@ export default function HomePage() {
           }
         });
       },
-      { threshold: 0.15 },
+      { threshold: 0.1 },
     );
     document
       .querySelectorAll("[data-animate]")
@@ -168,7 +177,12 @@ export default function HomePage() {
     return () => observer.disconnect();
   }, []);
 
-  const navBg = scrollY > 60 ? "rgba(8,6,4,0.92)" : "transparent";
+  // Close menu on scroll
+  useEffect(() => {
+    if (menuOpen) setMenuOpen(false);
+  }, [scrollY]);
+
+  const navBg = scrollY > 60 ? "rgba(8,6,4,0.95)" : "transparent";
   const navBlur = scrollY > 60 ? "blur(24px)" : "none";
 
   return (
@@ -178,7 +192,7 @@ export default function HomePage() {
         background: "#080604",
         color: "#f0ebe4",
         overflowX: "hidden",
-        cursor: "none",
+        cursor: isMobile ? "auto" : "none",
       }}
     >
       <link
@@ -186,41 +200,45 @@ export default function HomePage() {
         rel="stylesheet"
       />
 
-      {/* Custom cursor */}
-      <div
-        style={{
-          position: "fixed",
-          left: cursor.x,
-          top: cursor.y,
-          width: hovering ? 56 : 12,
-          height: hovering ? 56 : 12,
-          borderRadius: "50%",
-          background: hovering ? "transparent" : "#c8a96e",
-          border: hovering ? "1px solid #c8a96e" : "none",
-          transform: "translate(-50%, -50%)",
-          transition: "width 0.3s ease, height 0.3s ease, background 0.3s ease",
-          pointerEvents: "none",
-          zIndex: 9999,
-          opacity: cursorVisible ? 1 : 0,
-          mixBlendMode: hovering ? "normal" : "difference",
-        }}
-      />
-      <div
-        style={{
-          position: "fixed",
-          left: cursor.x,
-          top: cursor.y,
-          width: 4,
-          height: 4,
-          borderRadius: "50%",
-          background: "#c8a96e",
-          transform: "translate(-50%, -50%)",
-          pointerEvents: "none",
-          zIndex: 10000,
-          opacity: cursorVisible && hovering ? 1 : 0,
-          transition: "opacity 0.2s",
-        }}
-      />
+      {/* Custom cursor — desktop only */}
+      {!isMobile && (
+        <>
+          <div
+            style={{
+              position: "fixed",
+              left: cursor.x,
+              top: cursor.y,
+              width: hovering ? 56 : 12,
+              height: hovering ? 56 : 12,
+              borderRadius: "50%",
+              background: hovering ? "transparent" : "#c8a96e",
+              border: hovering ? "1px solid #c8a96e" : "none",
+              transform: "translate(-50%, -50%)",
+              transition: "width 0.3s ease, height 0.3s ease, background 0.3s ease",
+              pointerEvents: "none",
+              zIndex: 9999,
+              opacity: cursorVisible ? 1 : 0,
+              mixBlendMode: hovering ? "normal" : "difference",
+            }}
+          />
+          <div
+            style={{
+              position: "fixed",
+              left: cursor.x,
+              top: cursor.y,
+              width: 4,
+              height: 4,
+              borderRadius: "50%",
+              background: "#c8a96e",
+              transform: "translate(-50%, -50%)",
+              pointerEvents: "none",
+              zIndex: 10000,
+              opacity: cursorVisible && hovering ? 1 : 0,
+              transition: "opacity 0.2s",
+            }}
+          />
+        </>
+      )}
 
       {/* ── NAVBAR ── */}
       <nav
@@ -230,88 +248,234 @@ export default function HomePage() {
           left: 0,
           right: 0,
           zIndex: 1000,
-          background: navBg,
+          background: menuOpen ? "rgba(8,6,4,0.98)" : navBg,
           backdropFilter: navBlur,
           WebkitBackdropFilter: navBlur,
           borderBottom:
-            scrollY > 60 ? "1px solid rgba(200,169,110,0.12)" : "none",
+            scrollY > 60 || menuOpen ? "1px solid rgba(200,169,110,0.12)" : "none",
           transition: "background 0.5s ease, border 0.5s ease",
-          padding: "0 3rem",
-          height: "80px",
+          padding: isMobile ? "0 1.25rem" : "0 3rem",
+          height: "70px",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
         }}
       >
+        {/* Logo */}
         <div
           style={{
             fontFamily: "'Josefin Sans', sans-serif",
             fontWeight: 100,
-            fontSize: "15px",
+            fontSize: isMobile ? "14px" : "15px",
             letterSpacing: "0.35em",
             color: "#c8a96e",
             textTransform: "uppercase",
             cursor: "pointer",
+            flexShrink: 0,
           }}
-          onMouseEnter={() => setHovering(true)}
-          onMouseLeave={() => setHovering(false)}
+          onMouseEnter={() => !isMobile && setHovering(true)}
+          onMouseLeave={() => !isMobile && setHovering(false)}
         >
           AURUM
           <span style={{ color: "#f0ebe4", marginLeft: "2px" }}>STUDIO</span>
         </div>
 
-        <div style={{ display: "flex", gap: "2.5rem", alignItems: "center" }}>
-          {NAV_LINKS.map((link) => (
-            <a
-              key={link}
-              href="#"
+        {/* Desktop nav links */}
+        {!isMobile && (
+          <div style={{ display: "flex", gap: "2.5rem", alignItems: "center" }}>
+            {NAV_LINKS.map((link) => (
+              <a
+                key={link}
+                href="#"
+                onMouseEnter={() => setHovering(true)}
+                onMouseLeave={() => setHovering(false)}
+                style={{
+                  fontFamily: "'Josefin Sans', sans-serif",
+                  fontWeight: 300,
+                  fontSize: "11px",
+                  letterSpacing: "0.2em",
+                  color: "rgba(240,235,228,0.85)",
+                  textDecoration: "none",
+                  textTransform: "uppercase",
+                  transition: "color 0.3s",
+                }}
+              >
+                {link}
+              </a>
+            ))}
+            <button
               onMouseEnter={() => setHovering(true)}
               onMouseLeave={() => setHovering(false)}
               style={{
+                background: "transparent",
+                border: "1px solid rgba(200,169,110,0.6)",
+                color: "#c8a96e",
+                padding: "10px 24px",
                 fontFamily: "'Josefin Sans', sans-serif",
-                fontWeight: 200,
-                fontSize: "11px",
-                letterSpacing: "0.2em",
-                color: "rgba(240,235,228,0.7)",
-                textDecoration: "none",
+                fontWeight: 300,
+                fontSize: "10px",
+                letterSpacing: "0.25em",
                 textTransform: "uppercase",
-                transition: "color 0.3s",
-                position: "relative",
+                cursor: "pointer",
+                transition: "all 0.3s",
               }}
-              onFocus={(e) => (e.target.style.color = "#c8a96e")}
-              onBlur={(e) => (e.target.style.color = "rgba(240,235,228,0.7)")}
+            >
+              Enquire
+            </button>
+          </div>
+        )}
+
+        {/* Mobile hamburger (= lines) */}
+        {isMobile && (
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            style={{
+              background: "transparent",
+              border: "none",
+              cursor: "pointer",
+              padding: "8px",
+              display: "flex",
+              flexDirection: "column",
+              gap: "5px",
+              alignItems: "flex-end",
+            }}
+            aria-label="Toggle menu"
+          >
+            <span
+              style={{
+                display: "block",
+                width: "26px",
+                height: "1px",
+                background: menuOpen ? "#c8a96e" : "#f0ebe4",
+                transition: "all 0.3s ease",
+                transform: menuOpen ? "rotate(45deg) translate(4px, 4px)" : "none",
+                transformOrigin: "center",
+              }}
+            />
+            <span
+              style={{
+                display: "block",
+                width: "20px",
+                height: "1px",
+                background: menuOpen ? "transparent" : "rgba(240,235,228,0.7)",
+                transition: "all 0.3s ease",
+                opacity: menuOpen ? 0 : 1,
+              }}
+            />
+            <span
+              style={{
+                display: "block",
+                width: "26px",
+                height: "1px",
+                background: menuOpen ? "#c8a96e" : "#f0ebe4",
+                transition: "all 0.3s ease",
+                transform: menuOpen ? "rotate(-45deg) translate(4px, -4px)" : "none",
+                transformOrigin: "center",
+              }}
+            />
+          </button>
+        )}
+      </nav>
+
+      {/* ── MOBILE MENU OVERLAY ── */}
+      {isMobile && (
+        <div
+          style={{
+            position: "fixed",
+            top: "70px",
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(8,6,4,0.98)",
+            zIndex: 999,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: "0",
+            transform: menuOpen ? "translateX(0)" : "translateX(100%)",
+            transition: "transform 0.45s cubic-bezier(0.76, 0, 0.24, 1)",
+            borderTop: "1px solid rgba(200,169,110,0.1)",
+            overflowY: "auto",
+          }}
+        >
+          {/* Decorative vertical line */}
+          <div
+            style={{
+              position: "absolute",
+              left: "2rem",
+              top: "10%",
+              bottom: "10%",
+              width: "1px",
+              background: "linear-gradient(to bottom, transparent, rgba(200,169,110,0.3), transparent)",
+            }}
+          />
+
+          {NAV_LINKS.map((link, i) => (
+            <a
+              key={link}
+              href="#"
+              onClick={() => setMenuOpen(false)}
+              style={{
+                fontFamily: "'Cormorant Garamond', serif",
+                fontWeight: 300,
+                fontSize: "36px",
+                letterSpacing: "0.05em",
+                color: "rgba(240,235,228,0.9)",
+                textDecoration: "none",
+                padding: "1rem 3rem",
+                transition: "color 0.3s, padding-left 0.3s",
+                width: "100%",
+                textAlign: "center",
+                animation: menuOpen ? `mobileMenuFadeIn 0.4s ease ${i * 0.07}s both` : "none",
+              }}
             >
               {link}
             </a>
           ))}
+
           <button
-            onMouseEnter={() => setHovering(true)}
-            onMouseLeave={() => setHovering(false)}
+            onClick={() => setMenuOpen(false)}
             style={{
-              background: "transparent",
-              border: "1px solid rgba(200,169,110,0.6)",
-              color: "#c8a96e",
-              padding: "10px 24px",
+              marginTop: "2rem",
+              background: "#c8a96e",
+              border: "none",
+              color: "#080604",
+              padding: "14px 40px",
               fontFamily: "'Josefin Sans', sans-serif",
-              fontWeight: 200,
-              fontSize: "10px",
-              letterSpacing: "0.25em",
+              fontWeight: 300,
+              fontSize: "11px",
+              letterSpacing: "0.3em",
               textTransform: "uppercase",
               cursor: "pointer",
-              transition: "all 0.3s",
+              animation: menuOpen ? `mobileMenuFadeIn 0.4s ease 0.45s both` : "none",
             }}
           >
             Enquire
           </button>
+
+          <p
+            style={{
+              marginTop: "2rem",
+              fontFamily: "'Josefin Sans', sans-serif",
+              fontWeight: 100,
+              fontSize: "10px",
+              letterSpacing: "0.3em",
+              color: "rgba(200,169,110,0.5)",
+              textTransform: "uppercase",
+              animation: menuOpen ? `mobileMenuFadeIn 0.4s ease 0.5s both` : "none",
+            }}
+          >
+            Est. 2006
+          </p>
         </div>
-      </nav>
+      )}
 
       {/* ── HERO ── */}
       <section
         ref={heroRef}
-        style={{ position: "relative", height: "100vh", overflow: "hidden" }}
+        style={{ position: "relative", height: "100svh", overflow: "hidden" }}
       >
-        {/* Video bg */}
         <video
           autoPlay
           muted
@@ -323,20 +487,19 @@ export default function HomePage() {
             width: "100%",
             height: "100%",
             objectFit: "cover",
-            transform: `scale(1.08) translateY(${scrollY * 0.25}px)`,
+            transform: isMobile ? "scale(1.05)" : `scale(1.08) translateY(${scrollY * 0.25}px)`,
             transition: "transform 0.1s linear",
           }}
         >
           <source src={heroVideo} type="video/mp4" />
         </video>
 
-        {/* Gradient overlays */}
         <div
           style={{
             position: "absolute",
             inset: 0,
             background:
-              "linear-gradient(160deg, rgba(8,6,4,0.55) 0%, rgba(8,6,4,0.3) 40%, rgba(8,6,4,0.7) 100%)",
+              "linear-gradient(160deg, rgba(8,6,4,0.65) 0%, rgba(8,6,4,0.4) 40%, rgba(8,6,4,0.8) 100%)",
           }}
         />
         <div
@@ -345,12 +508,12 @@ export default function HomePage() {
             bottom: 0,
             left: 0,
             right: 0,
-            height: "40%",
+            height: "50%",
             background: "linear-gradient(to top, #080604 0%, transparent 100%)",
           }}
         />
 
-        {/* Noise texture overlay */}
+        {/* Noise texture */}
         <div
           style={{
             position: "absolute",
@@ -363,39 +526,41 @@ export default function HomePage() {
           }}
         />
 
-        {/* Decorative gold line left */}
-        <div
-          style={{
-            position: "absolute",
-            left: "3rem",
-            top: "50%",
-            transform: "translateY(-50%)",
-            width: "1px",
-            height: "120px",
-            background:
-              "linear-gradient(to bottom, transparent, #c8a96e, transparent)",
-            animation: "lineGrow 2s ease forwards",
-          }}
-        />
+        {/* Decorative gold line — hide on mobile */}
+        {!isMobile && (
+          <div
+            style={{
+              position: "absolute",
+              left: "3rem",
+              top: "50%",
+              transform: "translateY(-50%)",
+              width: "1px",
+              height: "120px",
+              background: "linear-gradient(to bottom, transparent, #c8a96e, transparent)",
+              animation: "lineGrow 2s ease forwards",
+            }}
+          />
+        )}
 
         {/* Hero content */}
         <div
           style={{
             position: "absolute",
-            bottom: "14%",
-            left: "8%",
-            maxWidth: "820px",
+            bottom: isMobile ? "12%" : "14%",
+            left: isMobile ? "5%" : "8%",
+            right: isMobile ? "5%" : "auto",
+            maxWidth: isMobile ? "100%" : "820px",
           }}
         >
           <p
             style={{
               fontFamily: "'Josefin Sans', sans-serif",
-              fontWeight: 100,
-              fontSize: "11px",
+              fontWeight: 200,
+              fontSize: isMobile ? "10px" : "11px",
               letterSpacing: "0.4em",
               color: "#c8a96e",
               textTransform: "uppercase",
-              marginBottom: "2rem",
+              marginBottom: "1.25rem",
               animation: "fadeUp 1.2s ease 0.2s both",
             }}
           >
@@ -405,38 +570,30 @@ export default function HomePage() {
           <h1
             style={{
               fontWeight: 300,
-              fontSize: "clamp(56px, 8vw, 110px)",
+              fontSize: isMobile ? "clamp(44px, 13vw, 72px)" : "clamp(56px, 8vw, 110px)",
               lineHeight: 0.92,
               letterSpacing: "-0.02em",
-              margin: "0 0 1.5rem",
+              margin: "0 0 1.25rem",
               animation: "fadeUp 1.2s ease 0.5s both",
             }}
           >
-            <span
-              style={{
-                display: "block",
-                fontStyle: "italic",
-                color: "#c8a96e",
-              }}
-            >
+            <span style={{ display: "block", fontStyle: "italic", color: "#c8a96e" }}>
               Where
             </span>
             <span style={{ display: "block" }}>Space Becomes</span>
-            <span style={{ display: "block", fontStyle: "italic" }}>
-              Sensation
-            </span>
+            <span style={{ display: "block", fontStyle: "italic" }}>Sensation</span>
           </h1>
 
           <p
             style={{
               fontFamily: "'Josefin Sans', sans-serif",
-              fontWeight: 200,
-              fontSize: "13px",
-              letterSpacing: "0.1em",
-              color: "rgba(240,235,228,0.65)",
+              fontWeight: 300,
+              fontSize: isMobile ? "13px" : "13px",
+              letterSpacing: "0.06em",
+              color: "rgba(240,235,228,0.8)",
               lineHeight: 1.8,
-              maxWidth: "440px",
-              marginBottom: "3rem",
+              maxWidth: isMobile ? "100%" : "440px",
+              marginBottom: "2rem",
               animation: "fadeUp 1.2s ease 0.8s both",
             }}
           >
@@ -447,21 +604,23 @@ export default function HomePage() {
           <div
             style={{
               display: "flex",
-              gap: "1.5rem",
+              flexDirection: isMobile ? "column" : "row",
+              gap: "1rem",
               animation: "fadeUp 1.2s ease 1.0s both",
             }}
           >
             <button
-              onMouseEnter={() => setHovering(true)}
-              onMouseLeave={() => setHovering(false)}
+              onMouseEnter={() => !isMobile && setHovering(true)}
+              onMouseLeave={() => !isMobile && setHovering(false)}
               style={{
                 background: "#c8a96e",
                 border: "none",
                 color: "#080604",
-                padding: "16px 40px",
+                padding: isMobile ? "14px 0" : "16px 40px",
+                width: isMobile ? "100%" : "auto",
                 fontFamily: "'Josefin Sans', sans-serif",
                 fontWeight: 300,
-                fontSize: "10px",
+                fontSize: "11px",
                 letterSpacing: "0.3em",
                 textTransform: "uppercase",
                 cursor: "pointer",
@@ -471,16 +630,17 @@ export default function HomePage() {
               View Portfolio
             </button>
             <button
-              onMouseEnter={() => setHovering(true)}
-              onMouseLeave={() => setHovering(false)}
+              onMouseEnter={() => !isMobile && setHovering(true)}
+              onMouseLeave={() => !isMobile && setHovering(false)}
               style={{
                 background: "transparent",
-                border: "1px solid rgba(240,235,228,0.3)",
+                border: "1px solid rgba(240,235,228,0.4)",
                 color: "#f0ebe4",
-                padding: "16px 40px",
+                padding: isMobile ? "14px 0" : "16px 40px",
+                width: isMobile ? "100%" : "auto",
                 fontFamily: "'Josefin Sans', sans-serif",
-                fontWeight: 200,
-                fontSize: "10px",
+                fontWeight: 300,
+                fontSize: "11px",
                 letterSpacing: "0.3em",
                 textTransform: "uppercase",
                 cursor: "pointer",
@@ -492,80 +652,81 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Scroll indicator */}
-        <div
-          style={{
-            position: "absolute",
-            bottom: "5%",
-            right: "3rem",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: "12px",
-            animation: "fadeUp 1.2s ease 1.4s both",
-          }}
-        >
-          <span
-            style={{
-              fontFamily: "'Josefin Sans', sans-serif",
-              fontSize: "9px",
-              letterSpacing: "0.3em",
-              color: "rgba(200,169,110,0.7)",
-              textTransform: "uppercase",
-              writingMode: "vertical-rl",
-            }}
-          >
-            Scroll
-          </span>
+        {/* Scroll indicator — hide on mobile */}
+        {!isMobile && (
           <div
             style={{
-              width: "1px",
-              height: "60px",
-              background: "linear-gradient(to bottom, #c8a96e, transparent)",
-              animation: "scrollPulse 2s ease-in-out infinite",
+              position: "absolute",
+              bottom: "5%",
+              right: "3rem",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "12px",
+              animation: "fadeUp 1.2s ease 1.4s both",
             }}
-          />
-        </div>
+          >
+            <span
+              style={{
+                fontFamily: "'Josefin Sans', sans-serif",
+                fontSize: "9px",
+                letterSpacing: "0.3em",
+                color: "rgba(200,169,110,0.7)",
+                textTransform: "uppercase",
+                writingMode: "vertical-rl",
+              }}
+            >
+              Scroll
+            </span>
+            <div
+              style={{
+                width: "1px",
+                height: "60px",
+                background: "linear-gradient(to bottom, #c8a96e, transparent)",
+                animation: "scrollPulse 2s ease-in-out infinite",
+              }}
+            />
+          </div>
+        )}
       </section>
 
-      {/* ── SECTION 1: STATS ── */}
+      {/* ── STATS ── */}
       <section
         id="stats"
         data-animate
         style={{
-          padding: "100px 8%",
+          padding: isMobile ? "60px 5%" : "100px 8%",
           borderBottom: "1px solid rgba(200,169,110,0.1)",
           opacity: visibleSections["stats"] ? 1 : 0,
-          transform: visibleSections["stats"]
-            ? "translateY(0)"
-            : "translateY(40px)",
+          transform: visibleSections["stats"] ? "translateY(0)" : "translateY(40px)",
           transition: "opacity 1s ease, transform 1s ease",
         }}
       >
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(4, 1fr)",
-            gap: "0",
+            gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)",
+            gap: isMobile ? "0" : "0",
           }}
         >
           {STATS.map((s, i) => (
             <div
               key={i}
               style={{
-                padding: "3rem",
-                borderLeft: i > 0 ? "1px solid rgba(200,169,110,0.15)" : "none",
+                padding: isMobile ? "2rem 1rem" : "3rem",
+                borderLeft: isMobile
+                  ? i % 2 !== 0 ? "1px solid rgba(200,169,110,0.15)" : "none"
+                  : i > 0 ? "1px solid rgba(200,169,110,0.15)" : "none",
+                borderTop: isMobile && i >= 2 ? "1px solid rgba(200,169,110,0.15)" : "none",
                 textAlign: "center",
                 transition: `opacity 0.8s ease ${i * 0.15}s, transform 0.8s ease ${i * 0.15}s`,
                 opacity: visibleSections["stats"] ? 1 : 0,
-                transform: visibleSections["stats"]
-                  ? "translateY(0)"
-                  : "translateY(30px)",
+                transform: visibleSections["stats"] ? "translateY(0)" : "translateY(30px)",
               }}
             >
               <div
                 style={{
-                  fontSize: "clamp(48px, 5vw, 72px)",
+                  fontSize: isMobile ? "clamp(36px, 10vw, 56px)" : "clamp(48px, 5vw, 72px)",
                   fontWeight: 300,
                   letterSpacing: "-0.02em",
                   color: "#c8a96e",
@@ -579,10 +740,10 @@ export default function HomePage() {
               <div
                 style={{
                   fontFamily: "'Josefin Sans', sans-serif",
-                  fontWeight: 200,
-                  fontSize: "10px",
-                  letterSpacing: "0.25em",
-                  color: "rgba(240,235,228,0.5)",
+                  fontWeight: 300,
+                  fontSize: isMobile ? "10px" : "10px",
+                  letterSpacing: "0.2em",
+                  color: "rgba(240,235,228,0.65)",
                   textTransform: "uppercase",
                 }}
               >
@@ -593,37 +754,37 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── SECTION 2: SERVICES ── */}
+      {/* ── SERVICES ── */}
       <section
         id="services"
         data-animate
         style={{
-          padding: "120px 8%",
+          padding: isMobile ? "70px 5%" : "120px 8%",
           opacity: visibleSections["services"] ? 1 : 0,
-          transform: visibleSections["services"]
-            ? "translateY(0)"
-            : "translateY(40px)",
+          transform: visibleSections["services"] ? "translateY(0)" : "translateY(40px)",
           transition: "opacity 1s ease, transform 1s ease",
         }}
       >
         <div
           style={{
             display: "flex",
+            flexDirection: isMobile ? "column" : "row",
             justifyContent: "space-between",
-            alignItems: "flex-end",
-            marginBottom: "80px",
+            alignItems: isMobile ? "flex-start" : "flex-end",
+            marginBottom: isMobile ? "48px" : "80px",
+            gap: isMobile ? "1.5rem" : "0",
           }}
         >
           <div>
             <p
               style={{
                 fontFamily: "'Josefin Sans', sans-serif",
-                fontWeight: 100,
+                fontWeight: 200,
                 fontSize: "10px",
                 letterSpacing: "0.4em",
                 color: "#c8a96e",
                 textTransform: "uppercase",
-                marginBottom: "1.5rem",
+                marginBottom: "1.25rem",
               }}
             >
               What We Do
@@ -631,7 +792,7 @@ export default function HomePage() {
             <h2
               style={{
                 fontWeight: 300,
-                fontSize: "clamp(40px, 5vw, 68px)",
+                fontSize: isMobile ? "clamp(36px, 10vw, 56px)" : "clamp(40px, 5vw, 68px)",
                 lineHeight: 0.95,
                 letterSpacing: "-0.02em",
                 maxWidth: "480px",
@@ -644,27 +805,29 @@ export default function HomePage() {
               </span>
             </h2>
           </div>
-          <p
-            style={{
-              fontFamily: "'Josefin Sans', sans-serif",
-              fontWeight: 200,
-              fontSize: "13px",
-              letterSpacing: "0.05em",
-              color: "rgba(240,235,228,0.55)",
-              lineHeight: 1.8,
-              maxWidth: "340px",
-            }}
-          >
-            Every engagement is a singular collaboration. We take on a limited
-            number of projects each year to ensure each receives our full
-            creative attention.
-          </p>
+          {!isMobile && (
+            <p
+              style={{
+                fontFamily: "'Josefin Sans', sans-serif",
+                fontWeight: 300,
+                fontSize: "13px",
+                letterSpacing: "0.05em",
+                color: "rgba(240,235,228,0.7)",
+                lineHeight: 1.8,
+                maxWidth: "340px",
+              }}
+            >
+              Every engagement is a singular collaboration. We take on a limited
+              number of projects each year to ensure each receives our full
+              creative attention.
+            </p>
+          )}
         </div>
 
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(2, 1fr)",
+            gridTemplateColumns: isMobile ? "1fr" : "repeat(2, 1fr)",
             gap: "1px",
             background: "rgba(200,169,110,0.12)",
           }}
@@ -674,15 +837,15 @@ export default function HomePage() {
               key={i}
               onMouseEnter={(e) => {
                 e.currentTarget.style.background = "rgba(200,169,110,0.06)";
-                setHovering(true);
+                !isMobile && setHovering(true);
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.background = "#080604";
-                setHovering(false);
+                !isMobile && setHovering(false);
               }}
               style={{
                 background: "#080604",
-                padding: "3.5rem",
+                padding: isMobile ? "2rem 1.5rem" : "3.5rem",
                 transition: "background 0.4s ease",
                 cursor: "pointer",
                 position: "relative",
@@ -694,16 +857,16 @@ export default function HomePage() {
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "flex-start",
-                  marginBottom: "2rem",
+                  marginBottom: "1.5rem",
                 }}
               >
                 <span
                   style={{
                     fontFamily: "'Josefin Sans', sans-serif",
-                    fontWeight: 100,
+                    fontWeight: 200,
                     fontSize: "11px",
                     letterSpacing: "0.3em",
-                    color: "rgba(200,169,110,0.5)",
+                    color: "rgba(200,169,110,0.6)",
                   }}
                 >
                   {s.num}
@@ -711,12 +874,12 @@ export default function HomePage() {
                 <span
                   style={{
                     fontFamily: "'Josefin Sans', sans-serif",
-                    fontWeight: 100,
+                    fontWeight: 200,
                     fontSize: "9px",
-                    letterSpacing: "0.25em",
-                    color: "rgba(240,235,228,0.3)",
+                    letterSpacing: "0.2em",
+                    color: "rgba(240,235,228,0.45)",
                     textTransform: "uppercase",
-                    border: "1px solid rgba(240,235,228,0.1)",
+                    border: "1px solid rgba(240,235,228,0.15)",
                     padding: "5px 12px",
                   }}
                 >
@@ -726,9 +889,10 @@ export default function HomePage() {
               <h3
                 style={{
                   fontWeight: 400,
-                  fontSize: "28px",
+                  fontSize: isMobile ? "24px" : "28px",
                   letterSpacing: "-0.01em",
-                  marginBottom: "1.25rem",
+                  marginBottom: "1rem",
+                  color: "#f0ebe4",
                 }}
               >
                 {s.title}
@@ -736,28 +900,21 @@ export default function HomePage() {
               <p
                 style={{
                   fontFamily: "'Josefin Sans', sans-serif",
-                  fontWeight: 200,
+                  fontWeight: 300,
                   fontSize: "13px",
-                  letterSpacing: "0.05em",
-                  color: "rgba(240,235,228,0.55)",
+                  letterSpacing: "0.04em",
+                  color: "rgba(240,235,228,0.7)",
                   lineHeight: 1.8,
-                  marginBottom: "2rem",
+                  marginBottom: "1.5rem",
                 }}
               >
                 {s.desc}
               </p>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "12px",
-                  color: "#c8a96e",
-                }}
-              >
+              <div style={{ display: "flex", alignItems: "center", gap: "12px", color: "#c8a96e" }}>
                 <span
                   style={{
                     fontFamily: "'Josefin Sans', sans-serif",
-                    fontWeight: 200,
+                    fontWeight: 300,
                     fontSize: "10px",
                     letterSpacing: "0.25em",
                     textTransform: "uppercase",
@@ -765,42 +922,34 @@ export default function HomePage() {
                 >
                   Learn More
                 </span>
-                <div
-                  style={{
-                    width: "32px",
-                    height: "1px",
-                    background: "#c8a96e",
-                  }}
-                />
+                <div style={{ width: "32px", height: "1px", background: "#c8a96e" }} />
               </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ── SECTION 3: PORTFOLIO ── */}
+      {/* ── PORTFOLIO ── */}
       <section
         id="portfolio"
         data-animate
         style={{
-          padding: "120px 8%",
+          padding: isMobile ? "70px 5%" : "120px 8%",
           opacity: visibleSections["portfolio"] ? 1 : 0,
-          transform: visibleSections["portfolio"]
-            ? "translateY(0)"
-            : "translateY(40px)",
+          transform: visibleSections["portfolio"] ? "translateY(0)" : "translateY(40px)",
           transition: "opacity 1s ease, transform 1s ease",
         }}
       >
-        <div style={{ textAlign: "center", marginBottom: "80px" }}>
+        <div style={{ textAlign: "center", marginBottom: isMobile ? "48px" : "80px" }}>
           <p
             style={{
               fontFamily: "'Josefin Sans', sans-serif",
-              fontWeight: 100,
+              fontWeight: 200,
               fontSize: "10px",
               letterSpacing: "0.4em",
               color: "#c8a96e",
               textTransform: "uppercase",
-              marginBottom: "1.5rem",
+              marginBottom: "1.25rem",
             }}
           >
             Selected Works
@@ -808,7 +957,7 @@ export default function HomePage() {
           <h2
             style={{
               fontWeight: 300,
-              fontSize: "clamp(40px, 5vw, 68px)",
+              fontSize: isMobile ? "clamp(36px, 10vw, 56px)" : "clamp(40px, 5vw, 68px)",
               lineHeight: 0.95,
               letterSpacing: "-0.02em",
             }}
@@ -821,153 +970,190 @@ export default function HomePage() {
           </h2>
         </div>
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(12, 1fr)",
-            gridTemplateRows: "360px 360px",
-            gap: "16px",
-          }}
-        >
-          {PORTFOLIO.map((p, i) => {
-            const configs = [
-              { col: "1 / 8", row: "1 / 2" },
-              { col: "8 / 13", row: "1 / 2" },
-              { col: "1 / 6", row: "2 / 3" },
-              { col: "6 / 13", row: "2 / 3" },
-            ];
-            const gradients = [
-              "linear-gradient(135deg, #1a1410 0%, #2d1f0e 100%)",
-              "linear-gradient(135deg, #0e1418 0%, #0e1f2d 100%)",
-              "linear-gradient(135deg, #14180e 0%, #1f2d0e 100%)",
-              "linear-gradient(135deg, #18100e 0%, #2d150e 100%)",
-            ];
-            return (
+        {/* Mobile: stacked cards */}
+        {isMobile ? (
+          <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+            {PORTFOLIO.map((p, i) => (
               <div
                 key={i}
-                onMouseEnter={() => setHovering(true)}
-                onMouseLeave={() => setHovering(false)}
                 style={{
-                  gridColumn: configs[i].col,
-                  gridRow: configs[i].row,
+                  height: "240px",
                   backgroundImage: `url(${p.image})`,
                   backgroundSize: "cover",
                   backgroundPosition: "center",
-                  backgroundRepeat: "no-repeat",
                   position: "relative",
                   overflow: "hidden",
-                  cursor: "pointer",
                   border: "1px solid rgba(200,169,110,0.08)",
                 }}
               >
-                {/* Shimmer gradient animation */}
                 <div
                   style={{
                     position: "absolute",
                     inset: 0,
-                    background:
-                      "linear-gradient(45deg, transparent 40%, rgba(200,169,110,0.03) 50%, transparent 60%)",
-                    backgroundSize: "200% 200%",
-                    animation: `shimmer ${3 + i * 0.7}s ease infinite`,
+                    background: "linear-gradient(to top, rgba(8,6,4,0.85) 0%, transparent 60%)",
                   }}
                 />
-                {/* Decorative corner */}
                 <div
                   style={{
                     position: "absolute",
-                    top: "1.5rem",
-                    right: "1.5rem",
-                    width: "24px",
-                    height: "24px",
+                    top: "1rem",
+                    right: "1rem",
+                    width: "18px",
+                    height: "18px",
                     borderTop: "1px solid rgba(200,169,110,0.5)",
                     borderRight: "1px solid rgba(200,169,110,0.5)",
                   }}
                 />
+                <div style={{ position: "absolute", bottom: "1.5rem", left: "1.5rem", right: "1.5rem" }}>
+                  <p
+                    style={{
+                      fontFamily: "'Josefin Sans', sans-serif",
+                      fontWeight: 200,
+                      fontSize: "9px",
+                      letterSpacing: "0.3em",
+                      color: "rgba(200,169,110,0.8)",
+                      textTransform: "uppercase",
+                      marginBottom: "6px",
+                    }}
+                  >
+                    {p.city} · {p.year}
+                  </p>
+                  <h3 style={{ fontWeight: 400, fontSize: "20px", letterSpacing: "-0.01em", color: "#f0ebe4" }}>
+                    {p.title}
+                  </h3>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          /* Desktop: grid layout */
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(12, 1fr)",
+              gridTemplateRows: "360px 360px",
+              gap: "16px",
+            }}
+          >
+            {PORTFOLIO.map((p, i) => {
+              const configs = [
+                { col: "1 / 8", row: "1 / 2" },
+                { col: "8 / 13", row: "1 / 2" },
+                { col: "1 / 6", row: "2 / 3" },
+                { col: "6 / 13", row: "2 / 3" },
+              ];
+              return (
                 <div
+                  key={i}
+                  onMouseEnter={() => setHovering(true)}
+                  onMouseLeave={() => setHovering(false)}
                   style={{
-                    position: "absolute",
-                    bottom: "1.5rem",
-                    left: "1.5rem",
-                    width: "24px",
-                    height: "24px",
-                    borderBottom: "1px solid rgba(200,169,110,0.5)",
-                    borderLeft: "1px solid rgba(200,169,110,0.5)",
-                  }}
-                />
-                <div
-                  style={{
-                    position: "absolute",
-                    bottom: "2rem",
-                    left: "2rem",
-                    right: "2rem",
+                    gridColumn: configs[i].col,
+                    gridRow: configs[i].row,
+                    backgroundImage: `url(${p.image})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                    position: "relative",
+                    overflow: "hidden",
+                    cursor: "pointer",
+                    border: "1px solid rgba(200,169,110,0.08)",
                   }}
                 >
                   <div
                     style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "flex-end",
+                      position: "absolute",
+                      inset: 0,
+                      background:
+                        "linear-gradient(45deg, transparent 40%, rgba(200,169,110,0.03) 50%, transparent 60%)",
+                      backgroundSize: "200% 200%",
+                      animation: `shimmer ${3 + i * 0.7}s ease infinite`,
                     }}
-                  >
-                    <div>
-                      <p
+                  />
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "1.5rem",
+                      right: "1.5rem",
+                      width: "24px",
+                      height: "24px",
+                      borderTop: "1px solid rgba(200,169,110,0.5)",
+                      borderRight: "1px solid rgba(200,169,110,0.5)",
+                    }}
+                  />
+                  <div
+                    style={{
+                      position: "absolute",
+                      bottom: "1.5rem",
+                      left: "1.5rem",
+                      width: "24px",
+                      height: "24px",
+                      borderBottom: "1px solid rgba(200,169,110,0.5)",
+                      borderLeft: "1px solid rgba(200,169,110,0.5)",
+                    }}
+                  />
+                  <div style={{ position: "absolute", bottom: "2rem", left: "2rem", right: "2rem" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+                      <div>
+                        <p
+                          style={{
+                            fontFamily: "'Josefin Sans', sans-serif",
+                            fontWeight: 200,
+                            fontSize: "9px",
+                            letterSpacing: "0.3em",
+                            color: "rgba(200,169,110,0.8)",
+                            textTransform: "uppercase",
+                            marginBottom: "8px",
+                          }}
+                        >
+                          {p.city} · {p.year}
+                        </p>
+                        <h3
+                          style={{
+                            fontWeight: 400,
+                            fontSize: "22px",
+                            letterSpacing: "-0.01em",
+                            color: "#f0ebe4",
+                          }}
+                        >
+                          {p.title}
+                        </h3>
+                      </div>
+                      <div
                         style={{
-                          fontFamily: "'Josefin Sans', sans-serif",
-                          fontWeight: 100,
-                          fontSize: "9px",
-                          letterSpacing: "0.3em",
-                          color: "rgba(200,169,110,0.7)",
-                          textTransform: "uppercase",
-                          marginBottom: "8px",
+                          width: "40px",
+                          height: "40px",
+                          border: "1px solid rgba(200,169,110,0.4)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          color: "#c8a96e",
+                          fontSize: "18px",
+                          flexShrink: 0,
                         }}
                       >
-                        {p.city} · {p.year}
-                      </p>
-                      <h3
-                        style={{
-                          fontWeight: 400,
-                          fontSize: "22px",
-                          letterSpacing: "-0.01em",
-                          color: "#f0ebe4",
-                        }}
-                      >
-                        {p.title}
-                      </h3>
-                    </div>
-                    <div
-                      style={{
-                        width: "40px",
-                        height: "40px",
-                        border: "1px solid rgba(200,169,110,0.4)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        color: "#c8a96e",
-                        fontSize: "18px",
-                        flexShrink: 0,
-                      }}
-                    >
-                      →
+                        →
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
 
-        <div style={{ textAlign: "center", marginTop: "60px" }}>
+        <div style={{ textAlign: "center", marginTop: "48px" }}>
           <button
-            onMouseEnter={() => setHovering(true)}
-            onMouseLeave={() => setHovering(false)}
+            onMouseEnter={() => !isMobile && setHovering(true)}
+            onMouseLeave={() => !isMobile && setHovering(false)}
             style={{
               background: "transparent",
               border: "1px solid rgba(200,169,110,0.4)",
               color: "#c8a96e",
-              padding: "16px 48px",
+              padding: isMobile ? "14px 40px" : "16px 48px",
+              width: isMobile ? "100%" : "auto",
               fontFamily: "'Josefin Sans', sans-serif",
-              fontWeight: 200,
-              fontSize: "10px",
+              fontWeight: 300,
+              fontSize: "11px",
               letterSpacing: "0.3em",
               textTransform: "uppercase",
               cursor: "pointer",
@@ -979,53 +1165,51 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── SECTION 4: PROCESS ── */}
+      {/* ── PROCESS ── */}
       <section
         id="process"
         data-animate
         style={{
-          padding: "120px 8%",
-          background:
-            "linear-gradient(180deg, #080604 0%, #0d0b07 50%, #080604 100%)",
+          padding: isMobile ? "70px 5%" : "120px 8%",
+          background: "linear-gradient(180deg, #080604 0%, #0d0b07 50%, #080604 100%)",
           opacity: visibleSections["process"] ? 1 : 0,
-          transform: visibleSections["process"]
-            ? "translateY(0)"
-            : "translateY(40px)",
+          transform: visibleSections["process"] ? "translateY(0)" : "translateY(40px)",
           transition: "opacity 1s ease, transform 1s ease",
           position: "relative",
           overflow: "hidden",
         }}
       >
-        {/* Background roman numeral watermark */}
-        <div
-          style={{
-            position: "absolute",
-            right: "-2%",
-            top: "50%",
-            transform: "translateY(-50%)",
-            fontSize: "280px",
-            fontWeight: 300,
-            color: "rgba(200,169,110,0.03)",
-            lineHeight: 1,
-            pointerEvents: "none",
-            letterSpacing: "-0.05em",
-            fontStyle: "italic",
-            userSelect: "none",
-          }}
-        >
-          Process
-        </div>
+        {!isMobile && (
+          <div
+            style={{
+              position: "absolute",
+              right: "-2%",
+              top: "50%",
+              transform: "translateY(-50%)",
+              fontSize: "280px",
+              fontWeight: 300,
+              color: "rgba(200,169,110,0.03)",
+              lineHeight: 1,
+              pointerEvents: "none",
+              letterSpacing: "-0.05em",
+              fontStyle: "italic",
+              userSelect: "none",
+            }}
+          >
+            Process
+          </div>
+        )}
 
-        <div style={{ marginBottom: "80px" }}>
+        <div style={{ marginBottom: isMobile ? "40px" : "80px" }}>
           <p
             style={{
               fontFamily: "'Josefin Sans', sans-serif",
-              fontWeight: 100,
+              fontWeight: 200,
               fontSize: "10px",
               letterSpacing: "0.4em",
               color: "#c8a96e",
               textTransform: "uppercase",
-              marginBottom: "1.5rem",
+              marginBottom: "1.25rem",
             }}
           >
             How We Work
@@ -1033,7 +1217,7 @@ export default function HomePage() {
           <h2
             style={{
               fontWeight: 300,
-              fontSize: "clamp(40px, 5vw, 68px)",
+              fontSize: isMobile ? "clamp(36px, 10vw, 56px)" : "clamp(40px, 5vw, 68px)",
               lineHeight: 0.95,
               letterSpacing: "-0.02em",
               maxWidth: "520px",
@@ -1052,22 +1236,20 @@ export default function HomePage() {
             <div
               key={i}
               onMouseEnter={(e) => {
-                e.currentTarget.querySelector(".process-num").style.color =
-                  "#c8a96e";
-                setHovering(true);
+                e.currentTarget.querySelector(".process-num").style.color = "#c8a96e";
+                !isMobile && setHovering(true);
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.querySelector(".process-num").style.color =
-                  "rgba(200,169,110,0.2)";
-                setHovering(false);
+                e.currentTarget.querySelector(".process-num").style.color = "rgba(200,169,110,0.25)";
+                !isMobile && setHovering(false);
               }}
               style={{
                 display: "grid",
-                gridTemplateColumns: "120px 1fr 1fr",
-                gap: "3rem",
-                padding: "3rem 0",
+                gridTemplateColumns: isMobile ? "60px 1fr" : "120px 1fr 1fr",
+                gap: isMobile ? "1rem" : "3rem",
+                padding: isMobile ? "1.75rem 0" : "3rem 0",
                 borderTop: "1px solid rgba(200,169,110,0.1)",
-                alignItems: "center",
+                alignItems: isMobile ? "flex-start" : "center",
                 cursor: "pointer",
                 transition: "all 0.3s ease",
               }}
@@ -1075,53 +1257,71 @@ export default function HomePage() {
               <div
                 className="process-num"
                 style={{
-                  fontSize: "64px",
+                  fontSize: isMobile ? "40px" : "64px",
                   fontWeight: 300,
                   fontStyle: "italic",
-                  color: "rgba(200,169,110,0.2)",
+                  color: "rgba(200,169,110,0.25)",
                   lineHeight: 1,
                   transition: "color 0.3s ease",
                 }}
               >
                 {p.step}
               </div>
-              <h3
-                style={{
-                  fontWeight: 400,
-                  fontSize: "28px",
-                  letterSpacing: "-0.01em",
-                }}
-              >
-                {p.title}
-              </h3>
-              <p
-                style={{
-                  fontFamily: "'Josefin Sans', sans-serif",
-                  fontWeight: 200,
-                  fontSize: "13px",
-                  letterSpacing: "0.05em",
-                  color: "rgba(240,235,228,0.55)",
-                  lineHeight: 1.8,
-                }}
-              >
-                {p.text}
-              </p>
+              <div>
+                <h3
+                  style={{
+                    fontWeight: 400,
+                    fontSize: isMobile ? "22px" : "28px",
+                    letterSpacing: "-0.01em",
+                    marginBottom: isMobile ? "0.5rem" : "0",
+                    color: "#f0ebe4",
+                  }}
+                >
+                  {p.title}
+                </h3>
+                {isMobile && (
+                  <p
+                    style={{
+                      fontFamily: "'Josefin Sans', sans-serif",
+                      fontWeight: 300,
+                      fontSize: "13px",
+                      letterSpacing: "0.04em",
+                      color: "rgba(240,235,228,0.7)",
+                      lineHeight: 1.8,
+                    }}
+                  >
+                    {p.text}
+                  </p>
+                )}
+              </div>
+              {!isMobile && (
+                <p
+                  style={{
+                    fontFamily: "'Josefin Sans', sans-serif",
+                    fontWeight: 300,
+                    fontSize: "13px",
+                    letterSpacing: "0.05em",
+                    color: "rgba(240,235,228,0.7)",
+                    lineHeight: 1.8,
+                  }}
+                >
+                  {p.text}
+                </p>
+              )}
             </div>
           ))}
           <div style={{ borderTop: "1px solid rgba(200,169,110,0.1)" }} />
         </div>
       </section>
 
-      {/* ── SECTION 5: JOURNAL ── */}
+      {/* ── JOURNAL ── */}
       <section
         id="journal"
         data-animate
         style={{
-          padding: "120px 8%",
+          padding: isMobile ? "70px 5%" : "120px 8%",
           opacity: visibleSections["journal"] ? 1 : 0,
-          transform: visibleSections["journal"]
-            ? "translateY(0)"
-            : "translateY(40px)",
+          transform: visibleSections["journal"] ? "translateY(0)" : "translateY(40px)",
           transition: "opacity 1s ease, transform 1s ease",
         }}
       >
@@ -1130,19 +1330,19 @@ export default function HomePage() {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "flex-end",
-            marginBottom: "64px",
+            marginBottom: isMobile ? "40px" : "64px",
           }}
         >
           <div>
             <p
               style={{
                 fontFamily: "'Josefin Sans', sans-serif",
-                fontWeight: 100,
+                fontWeight: 200,
                 fontSize: "10px",
                 letterSpacing: "0.4em",
                 color: "#c8a96e",
                 textTransform: "uppercase",
-                marginBottom: "1.5rem",
+                marginBottom: "1.25rem",
               }}
             >
               Thinking & Writing
@@ -1150,39 +1350,37 @@ export default function HomePage() {
             <h2
               style={{
                 fontWeight: 300,
-                fontSize: "clamp(40px, 5vw, 68px)",
+                fontSize: isMobile ? "clamp(36px, 10vw, 56px)" : "clamp(40px, 5vw, 68px)",
                 lineHeight: 0.95,
                 letterSpacing: "-0.02em",
               }}
             >
               The{" "}
-              <span style={{ fontStyle: "italic", color: "#c8a96e" }}>
-                Journal
-              </span>
+              <span style={{ fontStyle: "italic", color: "#c8a96e" }}>Journal</span>
             </h2>
           </div>
-          <a
-            href="#"
-            onMouseEnter={() => setHovering(true)}
-            onMouseLeave={() => setHovering(false)}
-            style={{
-              fontFamily: "'Josefin Sans', sans-serif",
-              fontWeight: 200,
-              fontSize: "10px",
-              letterSpacing: "0.25em",
-              color: "#c8a96e",
-              textDecoration: "none",
-              textTransform: "uppercase",
-              display: "flex",
-              alignItems: "center",
-              gap: "12px",
-            }}
-          >
-            All Articles
-            <div
-              style={{ width: "32px", height: "1px", background: "#c8a96e" }}
-            />
-          </a>
+          {!isMobile && (
+            <a
+              href="#"
+              onMouseEnter={() => setHovering(true)}
+              onMouseLeave={() => setHovering(false)}
+              style={{
+                fontFamily: "'Josefin Sans', sans-serif",
+                fontWeight: 300,
+                fontSize: "10px",
+                letterSpacing: "0.25em",
+                color: "#c8a96e",
+                textDecoration: "none",
+                textTransform: "uppercase",
+                display: "flex",
+                alignItems: "center",
+                gap: "12px",
+              }}
+            >
+              All Articles
+              <div style={{ width: "32px", height: "1px", background: "#c8a96e" }} />
+            </a>
+          )}
         </div>
 
         <div style={{ display: "flex", flexDirection: "column" }}>
@@ -1191,36 +1389,47 @@ export default function HomePage() {
               key={i}
               href="#"
               onMouseEnter={(e) => {
-                e.currentTarget.style.paddingLeft = "24px";
-                setHovering(true);
+                if (!isMobile) {
+                  e.currentTarget.style.paddingLeft = "24px";
+                  setHovering(true);
+                }
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.paddingLeft = "0";
-                setHovering(false);
+                if (!isMobile) {
+                  e.currentTarget.style.paddingLeft = "0";
+                  setHovering(false);
+                }
               }}
               style={{
                 display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                padding: "2rem 0",
+                flexDirection: isMobile ? "column" : "row",
+                justifyContent: isMobile ? "flex-start" : "space-between",
+                alignItems: isMobile ? "flex-start" : "center",
+                padding: isMobile ? "1.5rem 0" : "2rem 0",
                 borderTop: "1px solid rgba(200,169,110,0.1)",
                 textDecoration: "none",
                 color: "#f0ebe4",
                 transition: "padding 0.4s ease",
+                gap: isMobile ? "0.5rem" : "0",
               }}
             >
               <div
-                style={{ display: "flex", gap: "3rem", alignItems: "center" }}
+                style={{
+                  display: "flex",
+                  flexDirection: isMobile ? "column" : "row",
+                  gap: isMobile ? "0.4rem" : "3rem",
+                  alignItems: isMobile ? "flex-start" : "center",
+                }}
               >
                 <span
                   style={{
                     fontFamily: "'Josefin Sans', sans-serif",
-                    fontWeight: 100,
+                    fontWeight: 200,
                     fontSize: "9px",
                     letterSpacing: "0.3em",
                     color: "#c8a96e",
                     textTransform: "uppercase",
-                    width: "120px",
+                    width: isMobile ? "auto" : "120px",
                     flexShrink: 0,
                   }}
                 >
@@ -1229,37 +1438,63 @@ export default function HomePage() {
                 <h3
                   style={{
                     fontWeight: 400,
-                    fontSize: "22px",
+                    fontSize: isMobile ? "18px" : "22px",
                     letterSpacing: "-0.01em",
+                    color: "#f0ebe4",
+                    lineHeight: 1.3,
                   }}
                 >
                   {j.title}
                 </h3>
               </div>
               <div
-                style={{ display: "flex", alignItems: "center", gap: "2rem" }}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "1rem",
+                  marginTop: isMobile ? "0.5rem" : "0",
+                }}
               >
                 <span
                   style={{
                     fontFamily: "'Josefin Sans', sans-serif",
-                    fontWeight: 100,
+                    fontWeight: 200,
                     fontSize: "11px",
                     letterSpacing: "0.15em",
-                    color: "rgba(240,235,228,0.4)",
+                    color: "rgba(240,235,228,0.5)",
                   }}
                 >
                   {j.date}
                 </span>
-                <span
-                  style={{ color: "rgba(200,169,110,0.6)", fontSize: "20px" }}
-                >
-                  →
-                </span>
+                <span style={{ color: "rgba(200,169,110,0.7)", fontSize: "18px" }}>→</span>
               </div>
             </a>
           ))}
           <div style={{ borderTop: "1px solid rgba(200,169,110,0.1)" }} />
         </div>
+
+        {isMobile && (
+          <div style={{ textAlign: "center", marginTop: "2rem" }}>
+            <a
+              href="#"
+              style={{
+                fontFamily: "'Josefin Sans', sans-serif",
+                fontWeight: 300,
+                fontSize: "10px",
+                letterSpacing: "0.25em",
+                color: "#c8a96e",
+                textDecoration: "none",
+                textTransform: "uppercase",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "12px",
+              }}
+            >
+              All Articles
+              <div style={{ width: "32px", height: "1px", background: "#c8a96e" }} />
+            </a>
+          </div>
+        )}
       </section>
 
       {/* ── CTA BANNER ── */}
@@ -1267,20 +1502,19 @@ export default function HomePage() {
         id="cta"
         data-animate
         style={{
-          margin: "0 8% 120px",
-          background:
-            "linear-gradient(135deg, #1a130a 0%, #0d0b07 50%, #0a0f16 100%)",
+          margin: isMobile ? "0 5% 80px" : "0 8% 120px",
+          background: "linear-gradient(135deg, #1a130a 0%, #0d0b07 50%, #0a0f16 100%)",
           border: "1px solid rgba(200,169,110,0.15)",
-          padding: "80px",
+          padding: isMobile ? "3rem 2rem" : "80px",
           display: "flex",
+          flexDirection: isMobile ? "column" : "row",
           justifyContent: "space-between",
-          alignItems: "center",
+          alignItems: isMobile ? "flex-start" : "center",
+          gap: isMobile ? "2.5rem" : "0",
           position: "relative",
           overflow: "hidden",
           opacity: visibleSections["cta"] ? 1 : 0,
-          transform: visibleSections["cta"]
-            ? "translateY(0)"
-            : "translateY(40px)",
+          transform: visibleSections["cta"] ? "translateY(0)" : "translateY(40px)",
           transition: "opacity 1s ease, transform 1s ease",
         }}
       >
@@ -1289,29 +1523,28 @@ export default function HomePage() {
             position: "absolute",
             top: "-50%",
             right: "-10%",
-            width: "500px",
-            height: "500px",
+            width: "400px",
+            height: "400px",
             borderRadius: "50%",
-            background:
-              "radial-gradient(circle, rgba(200,169,110,0.05) 0%, transparent 70%)",
+            background: "radial-gradient(circle, rgba(200,169,110,0.05) 0%, transparent 70%)",
             pointerEvents: "none",
           }}
         />
-        <div style={{ position: "absolute", top: "2rem", right: "2rem" }}>
+        <div style={{ position: "absolute", top: "1.5rem", right: "1.5rem" }}>
           <div
             style={{
-              width: "40px",
-              height: "40px",
+              width: "30px",
+              height: "30px",
               borderTop: "1px solid rgba(200,169,110,0.3)",
               borderRight: "1px solid rgba(200,169,110,0.3)",
             }}
           />
         </div>
-        <div style={{ position: "absolute", bottom: "2rem", left: "2rem" }}>
+        <div style={{ position: "absolute", bottom: "1.5rem", left: "1.5rem" }}>
           <div
             style={{
-              width: "40px",
-              height: "40px",
+              width: "30px",
+              height: "30px",
               borderBottom: "1px solid rgba(200,169,110,0.3)",
               borderLeft: "1px solid rgba(200,169,110,0.3)",
             }}
@@ -1321,12 +1554,12 @@ export default function HomePage() {
           <p
             style={{
               fontFamily: "'Josefin Sans', sans-serif",
-              fontWeight: 100,
+              fontWeight: 200,
               fontSize: "10px",
               letterSpacing: "0.4em",
               color: "#c8a96e",
               textTransform: "uppercase",
-              marginBottom: "1.5rem",
+              marginBottom: "1.25rem",
             }}
           >
             Begin Your Project
@@ -1334,7 +1567,7 @@ export default function HomePage() {
           <h2
             style={{
               fontWeight: 300,
-              fontSize: "clamp(32px, 4vw, 56px)",
+              fontSize: isMobile ? "clamp(28px, 8vw, 44px)" : "clamp(32px, 4vw, 56px)",
               lineHeight: 0.95,
               letterSpacing: "-0.02em",
               maxWidth: "500px",
@@ -1353,23 +1586,25 @@ export default function HomePage() {
             flexDirection: "column",
             gap: "1rem",
             flexShrink: 0,
+            width: isMobile ? "100%" : "auto",
           }}
         >
           <button
-            onMouseEnter={() => setHovering(true)}
-            onMouseLeave={() => setHovering(false)}
+            onMouseEnter={() => !isMobile && setHovering(true)}
+            onMouseLeave={() => !isMobile && setHovering(false)}
             style={{
               background: "#c8a96e",
               border: "none",
               color: "#080604",
-              padding: "18px 48px",
+              padding: "16px 48px",
               fontFamily: "'Josefin Sans', sans-serif",
               fontWeight: 300,
-              fontSize: "10px",
+              fontSize: "11px",
               letterSpacing: "0.3em",
               textTransform: "uppercase",
               cursor: "pointer",
               whiteSpace: "nowrap",
+              width: isMobile ? "100%" : "auto",
             }}
           >
             Start a Conversation
@@ -1377,10 +1612,10 @@ export default function HomePage() {
           <p
             style={{
               fontFamily: "'Josefin Sans', sans-serif",
-              fontWeight: 100,
+              fontWeight: 200,
               fontSize: "10px",
               letterSpacing: "0.1em",
-              color: "rgba(200,169,110,0.5)",
+              color: "rgba(200,169,110,0.6)",
               textAlign: "center",
             }}
           >
@@ -1392,20 +1627,19 @@ export default function HomePage() {
       {/* ── FOOTER ── */}
       <footer
         style={{
-          background: "#05040300",
+          background: "transparent",
           borderTop: "1px solid rgba(200,169,110,0.1)",
           position: "relative",
           overflow: "hidden",
         }}
       >
-        {/* Huge background text */}
         <div
           style={{
             position: "absolute",
             bottom: "-5%",
             left: "50%",
             transform: "translateX(-50%)",
-            fontSize: "clamp(80px, 18vw, 260px)",
+            fontSize: "clamp(60px, 18vw, 260px)",
             fontWeight: 300,
             fontStyle: "italic",
             color: "rgba(200,169,110,0.04)",
@@ -1418,18 +1652,19 @@ export default function HomePage() {
           AURUM
         </div>
 
-        <div style={{ padding: "80px 8% 0", position: "relative", zIndex: 1 }}>
-          {/* Footer top grid */}
+        <div style={{ padding: isMobile ? "60px 5% 0" : "80px 8% 0", position: "relative", zIndex: 1 }}>
+          {/* Footer top */}
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "2fr 1fr 1fr 1fr",
-              gap: "4rem",
-              paddingBottom: "64px",
+              gridTemplateColumns: isMobile ? "1fr 1fr" : "2fr 1fr 1fr 1fr",
+              gap: isMobile ? "2.5rem" : "4rem",
+              paddingBottom: isMobile ? "40px" : "64px",
               borderBottom: "1px solid rgba(200,169,110,0.1)",
             }}
           >
-            <div>
+            {/* Brand col — full width on mobile */}
+            <div style={{ gridColumn: isMobile ? "1 / -1" : "auto" }}>
               <div
                 style={{
                   fontFamily: "'Josefin Sans', sans-serif",
@@ -1438,7 +1673,7 @@ export default function HomePage() {
                   letterSpacing: "0.35em",
                   color: "#c8a96e",
                   textTransform: "uppercase",
-                  marginBottom: "1.5rem",
+                  marginBottom: "1.25rem",
                 }}
               >
                 AURUM<span style={{ color: "#f0ebe4" }}>STUDIO</span>
@@ -1446,38 +1681,38 @@ export default function HomePage() {
               <p
                 style={{
                   fontFamily: "'Josefin Sans', sans-serif",
-                  fontWeight: 200,
+                  fontWeight: 300,
                   fontSize: "13px",
-                  letterSpacing: "0.05em",
-                  color: "rgba(240,235,228,0.45)",
+                  letterSpacing: "0.04em",
+                  color: "rgba(240,235,228,0.6)",
                   lineHeight: 1.9,
-                  maxWidth: "300px",
-                  marginBottom: "2.5rem",
+                  maxWidth: isMobile ? "100%" : "300px",
+                  marginBottom: "2rem",
                 }}
               >
                 An international interior design studio dedicated to spaces of
                 exceptional beauty and enduring character.
               </p>
-              <div style={{ display: "flex", gap: "16px" }}>
+              <div style={{ display: "flex", gap: "12px" }}>
                 {["IG", "PI", "LI", "BE"].map((s) => (
                   <a
                     key={s}
                     href="#"
-                    onMouseEnter={() => setHovering(true)}
-                    onMouseLeave={() => setHovering(false)}
+                    onMouseEnter={() => !isMobile && setHovering(true)}
+                    onMouseLeave={() => !isMobile && setHovering(false)}
                     style={{
                       width: "36px",
                       height: "36px",
-                      border: "1px solid rgba(200,169,110,0.2)",
+                      border: "1px solid rgba(200,169,110,0.25)",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      color: "rgba(200,169,110,0.5)",
+                      color: "rgba(200,169,110,0.65)",
                       textDecoration: "none",
                       fontFamily: "'Josefin Sans', sans-serif",
                       fontSize: "9px",
                       letterSpacing: "0.05em",
-                      fontWeight: 200,
+                      fontWeight: 300,
                       transition: "all 0.3s",
                     }}
                   >
@@ -1488,64 +1723,37 @@ export default function HomePage() {
             </div>
 
             {[
-              {
-                heading: "Studio",
-                links: ["About", "Team", "Philosophy", "Careers", "Press"],
-              },
-              {
-                heading: "Services",
-                links: [
-                  "Residential",
-                  "Commercial",
-                  "Concept",
-                  "Furniture",
-                  "Consulting",
-                ],
-              },
-              {
-                heading: "Contact",
-                links: [
-                  "London",
-                  "Dubai",
-                  "New York",
-                  "hello@aurum.studio",
-                  "+44 20 7946 0958",
-                ],
-              },
+              { heading: "Studio", links: ["About", "Team", "Philosophy", "Careers", "Press"] },
+              { heading: "Services", links: ["Residential", "Commercial", "Concept", "Furniture", "Consulting"] },
+              { heading: "Contact", links: ["London", "Dubai", "New York", "hello@aurum.studio", "+44 20 7946 0958"] },
             ].map((col) => (
               <div key={col.heading}>
                 <p
                   style={{
                     fontFamily: "'Josefin Sans', sans-serif",
-                    fontWeight: 200,
+                    fontWeight: 300,
                     fontSize: "9px",
-                    letterSpacing: "0.35em",
+                    letterSpacing: "0.3em",
                     color: "#c8a96e",
                     textTransform: "uppercase",
-                    marginBottom: "2rem",
+                    marginBottom: "1.5rem",
                   }}
                 >
                   {col.heading}
                 </p>
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "12px",
-                  }}
-                >
+                <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                   {col.links.map((l) => (
                     <a
                       key={l}
                       href="#"
-                      onMouseEnter={() => setHovering(true)}
-                      onMouseLeave={() => setHovering(false)}
+                      onMouseEnter={() => !isMobile && setHovering(true)}
+                      onMouseLeave={() => !isMobile && setHovering(false)}
                       style={{
                         fontFamily: "'Josefin Sans', sans-serif",
-                        fontWeight: 200,
-                        fontSize: "12px",
-                        letterSpacing: "0.1em",
-                        color: "rgba(240,235,228,0.45)",
+                        fontWeight: 300,
+                        fontSize: isMobile ? "12px" : "12px",
+                        letterSpacing: "0.08em",
+                        color: "rgba(240,235,228,0.6)",
                         textDecoration: "none",
                         transition: "color 0.3s",
                       }}
@@ -1562,25 +1770,27 @@ export default function HomePage() {
           <div
             style={{
               display: "flex",
+              flexDirection: isMobile ? "column" : "row",
               justifyContent: "space-between",
-              alignItems: "center",
-              padding: "32px 0 40px",
+              alignItems: isMobile ? "flex-start" : "center",
+              padding: "28px 0 40px",
+              gap: isMobile ? "1rem" : "0",
             }}
           >
             <p
               style={{
                 fontFamily: "'Josefin Sans', sans-serif",
-                fontWeight: 100,
+                fontWeight: 200,
                 fontSize: "10px",
                 letterSpacing: "0.15em",
-                color: "rgba(240,235,228,0.25)",
+                color: "rgba(240,235,228,0.35)",
               }}
             >
               © 2025 Aurum Studio. All Rights Reserved.
             </p>
-            <div style={{ display: "flex", gap: "2.5rem" }}>
-              {["Privacy Policy", "Terms of Use", "Cookie Settings"].map(
-                (t) => (
+            {!isMobile && (
+              <div style={{ display: "flex", gap: "2.5rem" }}>
+                {["Privacy Policy", "Terms of Use", "Cookie Settings"].map((t) => (
                   <a
                     key={t}
                     href="#"
@@ -1588,26 +1798,20 @@ export default function HomePage() {
                     onMouseLeave={() => setHovering(false)}
                     style={{
                       fontFamily: "'Josefin Sans', sans-serif",
-                      fontWeight: 100,
+                      fontWeight: 200,
                       fontSize: "10px",
                       letterSpacing: "0.15em",
-                      color: "rgba(240,235,228,0.25)",
+                      color: "rgba(240,235,228,0.3)",
                       textDecoration: "none",
                       transition: "color 0.3s",
                     }}
                   >
                     {t}
                   </a>
-                ),
-              )}
-            </div>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "12px",
-              }}
-            >
+                ))}
+              </div>
+            )}
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
               <div
                 style={{
                   width: "6px",
@@ -1620,10 +1824,10 @@ export default function HomePage() {
               <span
                 style={{
                   fontFamily: "'Josefin Sans', sans-serif",
-                  fontWeight: 100,
+                  fontWeight: 200,
                   fontSize: "10px",
                   letterSpacing: "0.15em",
-                  color: "rgba(240,235,228,0.35)",
+                  color: "rgba(240,235,228,0.45)",
                 }}
               >
                 Currently accepting new enquiries
@@ -1654,10 +1858,17 @@ export default function HomePage() {
           0%, 100% { opacity: 1; transform: scale(1); }
           50% { opacity: 0.5; transform: scale(1.4); }
         }
+        @keyframes mobileMenuFadeIn {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html { scroll-behavior: smooth; }
         a:hover { color: #c8a96e !important; }
         button:hover { opacity: 0.85; }
+        @media (max-width: 767px) {
+          body { cursor: auto !important; }
+        }
       `}</style>
     </div>
   );
